@@ -1,0 +1,49 @@
+{{ ansible_managed | comment }}
+# commit: {{ lookup('pipe', 'git rev-parse --short HEAD') }}
+
+server {
+	listen 80;
+	server_name {{ guacamole_nginx_server_name }};
+	return 301 https://$host;
+}
+
+server {
+	listen 443 ssl;
+	server_name {{ guacamole_nginx_server_name }};
+
+	root /var/www/html;
+
+	index index.html index.htm index.nginx-debian.html;
+    
+    ssl_certificate {{ guacamole_nginx_cert_path }};
+	ssl_certificate_key {{ guacamole_nginx_key_path }};
+
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_prefer_server_ciphers on; 
+	ssl_dhparam /etc/nginx/dhparam.pem;
+	ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384;
+	ssl_ecdh_curve secp384r1;
+	ssl_session_timeout  10m;
+	ssl_session_cache shared:SSL:10m;
+
+	resolver {{ guacamole_nginx_dns }} valid=300s;
+	resolver_timeout 5s; 
+	
+	add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+	add_header X-Frame-Options DENY;
+	add_header X-Content-Type-Options nosniff;
+	add_header X-XSS-Protection "1; mode=block";
+
+	access_log /var/log/nginx/guac_access.log;
+	error_log /var/log/nginx/guac_error.log;
+
+	location / {
+		    proxy_pass http://{{ guacamole_tomcat_host }}:{{ guacamole_tomcat_port }}/{{ guacamole_tomcat_path }}/;
+		    proxy_buffering off;
+		    proxy_http_version 1.1;
+		    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		    proxy_set_header Upgrade $http_upgrade;
+		    proxy_set_header Connection $http_connection;
+		    proxy_cookie_path /guacamole/ /;
+	}
+}

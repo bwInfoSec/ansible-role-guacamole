@@ -1,0 +1,29 @@
+---
+- name: Configure Client
+  block:
+    - name: Downloading Guacamole Client Package
+      ansible.builtin.get_url:
+        url: "{{ guacamole_dl_url }}/binary/{{ guacamole_client_package }}"
+        dest: /etc/guacamole/guacamole.war
+        mode: 0644
+      become: true
+      register: dl
+      until: dl is success
+
+    - name: Creating Tomcat Symlink For guacamole-{{ guacamole_version }}.war
+      ansible.builtin.file:
+        src: /etc/guacamole/guacamole.war
+        dest: "/var/lib/{{ guacamole_tomcat }}/webapps/guacamole.war"
+        state: link
+      become: true
+
+    - name: Setting Permissions On Tomcat Symlink For guacamole-{{ guacamole_version }}.war
+      ansible.builtin.file:
+        path: /etc/guacamole/guacamole.war
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+      become: true
+      notify:
+        - "Restart {{ guacamole_tomcat_service }}"
+        - Restart guacd
+        - Restart nginx

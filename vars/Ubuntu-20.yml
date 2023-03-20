@@ -1,0 +1,31 @@
+---
+guacamole_freerdp: freerdp2-x11
+guacamole_freerdp_dev: freerdp2-dev
+guacamole_tomcat: tomcat9
+guacamole_tomcat_service: tomcat9
+guacamole_tomcat_user: tomcat
+
+guacamole_debian_pre_reqs:
+  - "{{ guacamole_tomcat }}"
+  - build-essential
+  - "{{ guacamole_freerdp }}"
+  - libavcodec-dev
+  - libavutil-dev
+  - libcairo2-dev
+  - "{{ guacamole_freerdp_dev }}"
+  - libjpeg-turbo8-dev
+  - libossp-uuid-dev
+  - libpango1.0-dev
+  - libpng-dev
+  - libpulse-dev
+  - libssh2-1-dev
+  - libssl-dev
+  - libswscale-dev
+  - libtelnet-dev
+  - libvncserver-dev
+  - libvorbis-dev
+  - libwebp-dev
+  - nginx
+  - python3-mysqldb
+  - python3-psycopg2
+  - python3-cryptography

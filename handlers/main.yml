@@ -1,0 +1,23 @@
+---
+# handlers file for ansible-guacamole
+- name: Kill guacd
+  ansible.builtin.command: pkill guacd
+  become: true
+
+- name: Restart guacd
+  ansible.builtin.service:
+    name: guacd
+    state: restarted
+  become: true
+
+- name: Restart tomcat9
+  ansible.builtin.service:
+    name: tomcat9
+    state: restarted
+  become: true
+
+- name: Restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+  become: true

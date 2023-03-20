@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: Include ansible-guacamole
+      ansible.builtin.include_role:
+        name: bwinfosec.guacamole
+      vars:
+        guacamole_nginx_server_name: guacamole.example.com
+        guacamole_docker_extension: true

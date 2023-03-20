@@ -1,0 +1,66 @@
+---
+- name: Install Guacamole
+  become: true
+  block:
+    - name: Update cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Installing Guacamole Pre-Reqs
+      ansible.builtin.package:
+        name: "{{ guacamole_debian_pre_reqs }}"
+        state: present
+      register: result
+      until: result is successful
+
+    - name: Downloading Guacamole Server Package
+      ansible.builtin.get_url:
+        url: "{{ guacamole_dl_url + '/source/' + guacamole_server_package }}"
+        dest: "{{ guacamole_src_dir }}"
+        mode: 0644
+
+    - name: Extracting Guacamole Server Package
+      ansible.builtin.unarchive:
+        src: "{{ guacamole_src_dir + '/' + guacamole_server_package }}"
+        dest: "{{ guacamole_src_dir }}"
+        remote_src: true
+
+    - name: Checking If Guacamole Server Is Installed
+      ansible.builtin.stat:
+        path: /usr/local/sbin/guacd
+      register: guacamole_server_installed
+
+    - name: Configuring Guacamole Server Build
+      ansible.builtin.command: ./configure --with-init-dir=/etc/init.d --enable-allow-freerdp-snapshots
+      args:
+        chdir: "{{ guacamole_src_dir + '/guacamole-server-' + guacamole_version }}"
+      register: guacamole_config_server_build
+      when: not guacamole_server_installed['stat']['exists']
+      changed_when: true
+
+    - name: Compiling Guacamole Server
+      community.general.make:
+        chdir: "{{ guacamole_src_dir + '/guacamole-server-' + guacamole_version }}"
+      register: guacamole_server_compiled
+      when: guacamole_config_server_build['changed']
+
+    - name: Installing Guacamole Server
+      community.general.make:
+        chdir: "{{ guacamole_src_dir + '/guacamole-server-' + guacamole_version }}"
+        target: install
+      register: guacamole_server_installed
+      when: guacamole_server_compiled['changed']
+      changed_when: true
+
+    - name: Running ldconfig
+      ansible.builtin.command: ldconfig
+      when: guacamole_server_installed['changed']
+      changed_when: true
+
+    - name: Install postgresql
+      ansible.builtin.include_role:
+        name: geerlingguy.postgresql
+      vars:
+        postgresql_users:
+          - name: "{{ guacamole_postgresql_db['username'] }}"
+            password: "{{ guacamole_postgresql_db['password'] }}"

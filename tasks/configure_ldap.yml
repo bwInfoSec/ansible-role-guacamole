@@ -1,0 +1,34 @@
+---
+- name: Configure LDAP
+  become: true
+  when: guacamole_ldap_auth
+  block:
+    - name: Assert mandatory variables have been set
+      ansible.builtin.assert: {that: "{{ item }} is defined"}
+      with_items:
+        - guacamole_auth_ldap_ldap_password
+        - guacamole_auth_ldap_hostname
+        - guacamole_auth_ldap_port
+        - guacamole_auth_ldap_config_base_dn
+        - guacamole_auth_ldap_user_base_dn
+        - guacamole_auth_ldap_search_bind_dn
+        - guacamole_auth_ldap_user_search_filter
+        - guacamole_auth_ldap_username_attribute
+        - guacamole_auth_ldap_member_attribute
+        - guacamole_auth_ldap_member_attribute_type
+        - guacamole_auth_ldap_encryption_method
+
+    - name: Downloading Auth LDAP Library to {{ guacamole_src_dir }}
+      ansible.builtin.unarchive:
+        src: "{{ guacamole_dl_url }}/binary/{{ guacamole_auth_ldap_package }}"
+        dest: "{{ guacamole_src_dir }}"
+        remote_src: true
+
+    - name: Copying Auth LDAP Connector to /etc/guacamole/extensions/{{ guacamole_auth_ldap_priority }}guacamole-auth-ldap-{{ guacamole_version }}.jar
+      ansible.builtin.copy:
+        src: "{{ guacamole_src_dir }}/guacamole-auth-ldap-{{ guacamole_version }}/guacamole-auth-ldap-{{ guacamole_version }}.jar"
+        dest: "/etc/guacamole/extensions/{{ guacamole_auth_ldap_priority }}guacamole-auth-ldap-{{ guacamole_version }}.jar"
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0644
+        remote_src: true

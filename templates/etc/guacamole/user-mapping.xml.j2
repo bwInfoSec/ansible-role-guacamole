@@ -1,0 +1,38 @@
+{{ ansible_managed | comment }}
+# commit: {{ lookup('pipe', 'git rev-parse --short HEAD') }}
+
+<user-mapping>
+
+{% if guacamole_users is defined %}
+{%   for user in guacamole_users %}
+    <authorize username="{{ user['name'] }}" password="{{ user['password'] }}">
+{%     if user['connections'] is defined %}
+{%       for connection in user['connections'] %}
+        <connection name="{{ connection['name'] }}">
+            <protocol>{{ connection['protocol'] }}</protocol>
+            <param name="hostname">{{ connection['host'] }}</param>
+            <param name="port">{{ connection['port'] }}</param>
+{%         if connection['protocol'] == "rdp" %}
+            <param name="color-depth">{{ guacamole_rdp_color_depth }}</param>
+            <param name="security">{{ guacamole_rdp_security }}</param>
+            <param name="ignore-cert">{{ guacamole_rdp_ignore_cert |lower }}</param>
+            <param name="disable-auth">{{ guacamole_rdp_disable_auth|lower }}</param>
+{%         endif %}
+{%           if connection['password'] is defined %}
+            <param name="password">{{ connection['password'] }}</param>
+{%           endif %}
+{%           if connection['username'] is defined %}
+            <param name="username">{{ connection['username'] }}</param>
+{%           endif %}
+{%         if connection['protocol'] == "ssh" %}
+{%           if connection['private_key'] is defined %}
+            <param name="private-key">{{ connection['private_key'] }}</param>
+{%           endif %}
+{%         endif %}
+        </connection>
+{%       endfor %}
+{%     endif %}
+    </authorize>
+{%   endfor %}
+{% endif %}
+</user-mapping>

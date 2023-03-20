@@ -1,0 +1,94 @@
+---
+- name: Downloading Auth JDBC Library to {{ guacamole_src_dir }}
+  ansible.builtin.unarchive:
+    src: "{{ guacamole_dl_url }}/binary/{{ guacamole_auth_jdbc_package }}"
+    dest: "{{ guacamole_src_dir }}"
+    remote_src: true
+  become: true
+  when: guacamole_postgresql_auth
+
+- name: Checking If DB Has Been Populated
+  ansible.builtin.stat:
+    path: /etc/guacamole/.db_populated
+  register: guacamole_db_populated_check
+  when: guacamole_postgresql_auth
+
+- name: PostgreSQL
+  become: true
+  block:
+    - name: Copying Auth JDBC Connector for PostgreSQL
+      ansible.builtin.copy:
+        src: "{{ guacamole_src_dir }}/guacamole-auth-jdbc-{{ guacamole_version }}/postgresql/guacamole-auth-jdbc-postgresql-{{ guacamole_version }}.jar"
+        dest: /etc/guacamole/extensions/
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        remote_src: true
+        mode: 0644
+
+    - name: Downloading PostgreSQL Connector
+      ansible.builtin.get_url:
+        url: "{{ guacamole_postgresql_connector_package }}"
+        dest: "{{ guacamole_src_dir }}"
+        mode: 0644
+
+    - name: Copying PostgreSQL Connector
+      ansible.builtin.copy:
+        src: "{{ guacamole_src_dir }}/postgresql-{{ guacamole_postgresql_connector_version }}.jar"
+        dest: /etc/guacamole/lib/
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        remote_src: true
+        mode: 0644
+
+    - name: Creating Guacamole DB
+      community.general.postgresql_db:
+        name: "{{ guacamole_postgresql_db['name'] }}"
+        state: present
+      become_user: postgres
+
+    - name: Creating Guacamole DB User
+      community.general.postgresql_user:
+        db: "{{ guacamole_postgresql_db['name'] }}"
+        name: "{{ guacamole_postgresql_db['username'] }}"
+        password: "{{ guacamole_postgresql_db['password'] }}"
+        state: present
+      become_user: postgres
+
+    - name: Popluating DB
+      ansible.builtin.shell: >
+        psql "{{ guacamole_postgresql_db['name'] }}" < "{{ guacamole_src_dir }}/guacamole-auth-jdbc-{{ guacamole_version }}/postgresql/schema/{{ item }}"
+      become_user: postgres
+      register: guacamole_db_populated
+      with_items:
+        - 001-create-schema.sql
+        - 002-create-admin-user.sql
+      when: not guacamole_db_populated_check['stat']['exists']
+      changed_when: true
+
+    - name: Setting DB permissions
+      community.general.postgresql_privs:
+        database: "{{ guacamole_postgresql_db['name'] }}"
+        schema: public
+        role: "{{ guacamole_postgresql_db['username'] }}"
+        type: table
+        obj: ALL_IN_SCHEMA
+        privs: SELECT,INSERT,UPDATE,DELETE
+      become_user: postgres
+
+    - name: Setting DB permissions
+      community.general.postgresql_privs:
+        database: "{{ guacamole_postgresql_db['name'] }}"
+        schema: public
+        role: "{{ guacamole_postgresql_db['username'] }}"
+        type: sequence
+        obj: ALL_IN_SCHEMA
+        privs: all
+      become_user: postgres
+
+- name: Marking DB As Populated   # noqa: no-handler
+  ansible.builtin.file:
+    path: /etc/guacamole/.db_populated
+    state: touch
+    mode: 0644
+  become: true
+  when: guacamole_db_populated['changed']

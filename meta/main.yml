@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: Stefan Machmeier
+  description: Ansible role to install/configure Guacamole
+  license: EUPL1.2
+  role_name: guacamole
+  namespace: bwinfosec
+
+  min_ansible_version: "2.5"
+
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - "focal"
+
+  galaxy_tags:
+    - remote
+
+dependencies:
+  - role: geerlingguy.postgresql

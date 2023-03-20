@@ -1,0 +1,45 @@
+{{ ansible_managed | comment }}
+# commit: {{ lookup('pipe', 'git rev-parse --short HEAD') }}
+
+auth-provider: {{ guacamole_auth_provider }}
+{% if guacamole_basic_user_mapping is defined and guacamole_basic_user_mapping|string %}
+basic-user-mapping: {{ guacamole_basic_user_mapping }}
+{% endif %}
+guacd-hostname: {{ guacamole_server_hostname }}
+{% if guacamole_server_port is defined and guacamole_server_port|int %}
+guacd-port: {{ guacamole_server_port }}
+{% endif %}
+user-mapping: /etc/guacamole/user-mapping.xml
+{% if guacamole_ldap_auth %}
+ldap-hostname: {{ guacamole_auth_ldap_hostname }}
+ldap-port: {{ guacamole_auth_ldap_port }}
+ldap-config-base-dn: {{ guacamole_auth_ldap_config_base_dn }}
+ldap-search-bind-dn: {{ guacamole_auth_ldap_search_bind_dn }}
+ldap-search-bind-password: {{ guacamole_auth_ldap_search_bind_dn_password }}
+ldap-member-attribute: {{ guacamole_auth_ldap_member_attribute }}
+ldap-member-attribute-type: {{ guacamole_auth_ldap_member_attribute_type }}
+ldap-username-attribute: {{ guacamole_auth_ldap_username_attribute }}
+ldap-user-base-dn: {{ guacamole_auth_ldap_user_base_dn }}
+ldap-group-search-filter: {{ guacamole_auth_ldap_group_search_filter }}
+ldap-encryption-method: {{ guacamole_auth_ldap_encryption_method }}
+{% endif %}
+{% if guacamole_postgresql_auth %}
+postgresql-hostname: {{ guacamole_postgresql_db['host'] }}
+postgresql-port: {{ guacamole_postgresql_db['port'] }}
+postgresql-database: {{ guacamole_postgresql_db['name'] }}
+postgresql-username: {{ guacamole_postgresql_db['username'] }}
+postgresql-password: {{ guacamole_postgresql_db['password'] }}
+postgresql-auto-create-accounts: {{ guacamole_postgresql_db['auto-create-accounts'] }}
+{% endif %}
+{% if guacamole_totp_auth %}
+totp-issuer: {{ guacamole_auth_totp_issuer }}
+totp-digits: {{ guacamole_auth_totp_digits }}
+totp-period: {{ guacamole_auth_totp_period }}
+totp-mode: {{ guacamole_auth_totp_mode }}
+{% endif %}
+{% if guacamole_docker_extension %}
+docker-extension-additional-env: {{ guacamole_docker_extension_additional_env }}
+docker-extension-cert: {{ guacamole_docker_extension_cert }}
+docker-extension-exposed-port: {{ guacamole_docker_extension_exposed_port }}
+docker-extension-image: {{ guacamole_docker_extension_image }}
+{% endif %}

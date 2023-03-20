@@ -1,0 +1,19 @@
+---
+- name: Configure Tomcat
+  become: true
+  block:
+    - name: Creating Tomcat symlink For guacamole.properties
+      ansible.builtin.file:
+        src: /etc/guacamole
+        dest: "/usr/share/{{ guacamole_tomcat }}/.guacamole"
+        state: link
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+
+    - name: Setting Tomcat XML
+      ansible.builtin.template:
+        src: etc/tomcat/server.xml.j2
+        dest: /etc/{{ guacamole_tomcat }}/server.xml
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0644

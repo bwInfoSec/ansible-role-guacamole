@@ -1,0 +1,19 @@
+---
+- name: Configure Docker Extension
+  when: guacamole_docker_extension
+  block:
+    - name: Downloading Docker Extension
+      ansible.builtin.get_url:
+        url: "{{ guacamole_docker_extension_package }}"
+        dest: "{{ guacamole_src_dir }}/guacamole-docker-manager.jar"
+        mode: 0644
+
+    - name: Copying Docker Extension
+      ansible.builtin.copy:
+        src: "{{ guacamole_src_dir }}/guacamole-docker-manager.jar"
+        dest: "/etc/guacamole/extensions/{{ guacamole_auth_docker_priority }}guacamole-docker-manager-{{ guacamole_version }}.jar"
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0644
+        remote_src: true
+      become: true

@@ -1,0 +1,186 @@
+---
+guacamole_server_hostname: localhost
+
+guacamole_ldap_auth: false
+guacamole_totp_auth: false
+guacamole_docker_extension: false
+
+guacamole_auth_ldap_priority: ""
+guacamole_auth_openid_priority: ""
+guacamole_auth_totp_priority: ""
+guacamole_auth_docker_priority: ""
+
+# Define PostgreSQL DB Info
+guacamole_postgresql_db:
+  name: guacamole
+  host: localhost
+  port: 5432
+  username: guacamole
+  password: guacamole
+  auto-create-accounts: true
+
+# RDP settings
+guacamole_rdp_color_depth: 24
+guacamole_rdp_disable_auth: false
+guacamole_rdp_height: 900
+guacamole_rdp_width: 1440
+guacamole_rdp_security: rdp
+guacamole_rdp_ignore_cert: false
+
+# LDAP settings
+guacamole_auth_ldap_ldap_password:
+guacamole_auth_ldap_hostname:
+guacamole_auth_ldap_port:
+guacamole_auth_ldap_config_base_dn:
+guacamole_auth_ldap_user_base_dn:
+guacamole_auth_ldap_search_bind_dn:
+guacamole_auth_ldap_user_search_filter:
+guacamole_auth_ldap_username_attribute:
+guacamole_auth_ldap_member_attribute:
+guacamole_auth_ldap_member_attribute_type:
+guacamole_auth_ldap_encryption_method:
+
+# TOTP settings
+guacamole_auth_totp_issuer: "Apache Guacamole"
+guacamole_auth_totp_digits: 6
+guacamole_auth_totp_period: 30
+guacamole_auth_totp_mode: "sha1"
+
+# Docker extension
+guacamole_docker_extension_additional_env:
+guacamole_docker_extension_cert:
+guacamole_docker_extension_exposed_port:
+guacamole_docker_extension_image:
+guacamole_docker_extension_url: https://github.com/bwInfoSec/guacamole_ext_docker-manager/releases/download/
+guacamole_docker_extension_package: "{{ guacamole_docker_extension_url }}/v{{ guacamole_version }}/guacamole-docker-manager-jar-with-dependencies-and-exclude-classes.jar"
+
+
+# guacamole_basic_user_mapping: /etc/guacamole/user-mapping.xml
+guacamole_users: []
+# - name: user1
+#   password: password
+#   connections:
+#     - host: 10.0.101.50
+#       name: nas01
+#       protocol: ssh
+#       port: 22
+#     - host: 192.168.250.11
+#       name: windows2016
+#       protocol: rdp
+#       port: 3389
+#     - host: 192.168.250.11
+#       name: 192.168.250.11
+#       protocol: vnc
+#       port: 5901
+#       password: password
+
+guacamole_auth_jdbc_package: "guacamole-auth-jdbc-{{ guacamole_version }}.tar.gz"
+guacamole_auth_provider: net.sourceforge.guacamole.net.basic.BasicFileAuthenticationProvider
+
+guacamole_client_package: "guacamole-{{ guacamole_version }}.war"
+
+guacamole_dl_url: "http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/{{ guacamole_version }}"
+
+# Defines if PostgreSQL DB should be used for authentication
+guacamole_postgresql_auth: true
+guacamole_postgresql_encoding: "UTF-8"
+guacamole_postgresql_collate: "en_US.UTF-8"
+guacamole_postgresql_ctype: "en_US.UTF-8"
+guacamole_postgresql_template: "template0"
+guacamole_postgresql_connector_dl_url: https://jdbc.postgresql.org/download/
+guacamole_postgresql_connector_version: 42.2.20
+guacamole_postgresql_connector_package: "{{ guacamole_postgresql_connector_dl_url }}postgresql-{{ guacamole_postgresql_connector_version }}.jar"
+
+guacamole_server_package: "guacamole-server-{{ guacamole_version }}.tar.gz"
+guacamole_server_port: 4822
+
+guacamole_tomcat_host: "localhost"
+guacamole_tomcat_port: 8080
+guacamole_tomcat_path: "guacamole"
+
+guacamole_nginx_dns: "129.206.100.126 129.206.210.127"
+guacamole_nginx_cert_name: "guacamole.crt"
+guacamole_nginx_key_name: "guacamole.key"
+guacamole_nginx_cert_path: "/etc/ssl/certs/{{ guacamole_nginx_cert_name }}"
+guacamole_nginx_key_path: "/etc/ssl/private/{{ guacamole_nginx_key_name }}"
+guacamole_nginx_server_name: "example.com"
+guacamole_client_max_body_size: 200M
+
+# This is an example self-signed certificate, don't use it in production
+guacamole_nginx_keys:
+  - name: "{{ guacamole_nginx_key_name }}"
+    content: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDhBCKaG6Tsjh6B
+      VoI2j+A9toA7ubl9TJFJ2pFeLwYNwTCjjRQ4AcOlsulOt6Q23KLLvaLQtaMknJI8
+      +P3GMVXYGiTVszQK65NU0/5KCnmP8Gyx4BItvYl51ufUfsFF7QuvNyQDa6bR4beh
+      YqmlhhnN/EHnSb1+/dq90W0k3dSYeTzI5TnVmWjaTqNpHE/sMJMJ6PIwudxXs4w4
+      bBzZ9IOrPMfD7viSYieeJjzbuzDYnSTcTEU9q1aJCwsNAhA0CBLUnJkM9oVxEwjr
+      pWEy9FJMW6s2sGIV7qKi/WQEolY+5YbXj2/KGQRShtIgx5MLU0ac8sm6u2PS5tp/
+      qR3Zl1E1AgMBAAECggEAc1XjRoqU5ouSJ0loRP9KOVeqMvLnmMn+TpSxnk0MFVDI
+      1YwiqPJ+jhg+bhLDITvGVhhFtCTmEoYOjyIxMb1n+vSrnL3WFyLYyco/tUPZO2ZI
+      0IPBzaAxLzpwagLuniD6tDzXQMmVIE9KCHbB7g3mfCaowRyS/NyxmkoWX6c0qVHF
+      HMECBgRfPIVQgnKrF+jLZHWraMEx6TJBtzZk4xnXZrRSB6KOxLcpVKtSuyCCfPm4
+      RJMIHpb3wps6duh/RN9lX37rEoshcXbrQdzEsgaWYAYtI15R0cXOmPTUNQnQQnXS
+      9J2EwrQaWZoil5rfjOZvjpGIMDy2nsluWNKbdXjuoQKBgQD4hvX6HnXgzf8Kg1Kl
+      VvQEVowKCxK07/xYCvHxP06uhXpZ1p3qBqojvHEgagzg9cExq1Z4aD7tzbsGarSl
+      k8MCYpqByoU3p965FpDnPoFVbZZjOvXDRKJTul27Qrq/M8+4pjzBQuwBSM2iSrPi
+      TngkgC6hHenFBJ4kIVcTeIoPcwKBgQDnyDKwBhpoRwxfly1drx4rthkscSflTH4d
+      2kGvCY5m+eVbm1eXqnY/LFtAHxtmZvE/mISMgFIVf/gQsGyVoLTr36eoSeTte/Te
+      yzQB2/n3Jl8+hYx9aDGpsqRQdpCMxK7aH6OTB7+ZRyTSiyr8ddhLeINcPPEG6Rvs
+      bcx9i4MitwKBgH0dbH3TkeJvsiK3xAaKxOPeMjfoJS3D11T3hZ+/EDxZ5COQIQWs
+      /0BoYMdBvGQQNIdty2Voja2oMaxkUbc9sSHlRAVtUC2ZrE2fp6lS1UeNmPUxvIHm
+      bpYaL4/TYzJYwg0iW1mr+CYZYbR/SRn4CRHPGipwZbySu45S3oRl3ZMzAoGALWoL
+      jHPVrsLlCMHNUMLkLXpjmlKdl48SUvUV058SuNiT+QwJ8JykyKH/SyQNMVZQRL60
+      kfb+nlnRmCuJSxQO/vx2lEHOSj30b8bu7MJWSvfIx65RJa1Jtc9b5KwmjH5pKDH0
+      0fU9tGG9NEeyZ38Ln1YAnw0NyOXZ48xrudmhGycCgYBvocJ/Y8YH0+EsZcoUmywS
+      iUY2yVwlrKVCtt15VPdltJqBYQRacxji1qZadxy8FotNab87eOpKQqX2z3RJ6rQe
+      OyGyQtGa53vq4Iekor+NcpHrEPBPEJk39iVJ67F3bhBIaAdWjMXFAqfttCt/QC+K
+      IjYWPzDuLflz5wy7NbFlmQ==
+      -----END PRIVATE KEY-----
+
+guacamole_nginx_certificates:
+  - name: "{{ guacamole_nginx_cert_name }}"
+    content: |
+      -----BEGIN CERTIFICATE-----
+      MIIEHzCCAwegAwIBAgIUGtykluxkoW+Rgh12AUqk9JnCAZUwDQYJKoZIhvcNAQEL
+      BQAwgZ4xCzAJBgNVBAYTAkRFMRswGQYDVQQIDBJCYWRlbi1XdWVydHRlbWJlcmcx
+      EzARBgNVBAcMCkhlaWRlbGJlcmcxDTALBgNVBAoMBEVNQ0wxDTALBgNVBAsMBEVN
+      Q0wxEjAQBgNVBAMMCWJ3SW5mb1NlYzErMCkGCSqGSIb3DQEJARYcc3RlZmFuLW1h
+      Y2htZWllckBvdXRsb29rLmNvbTAeFw0yMjA1MTIxMTQyMzFaFw0yMzA1MTIxMTQy
+      MzFaMIGeMQswCQYDVQQGEwJERTEbMBkGA1UECAwSQmFkZW4tV3VlcnR0ZW1iZXJn
+      MRMwEQYDVQQHDApIZWlkZWxiZXJnMQ0wCwYDVQQKDARFTUNMMQ0wCwYDVQQLDARF
+      TUNMMRIwEAYDVQQDDAlid0luZm9TZWMxKzApBgkqhkiG9w0BCQEWHHN0ZWZhbi1t
+      YWNobWVpZXJAb3V0bG9vay5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQDhBCKaG6Tsjh6BVoI2j+A9toA7ubl9TJFJ2pFeLwYNwTCjjRQ4AcOlsulO
+      t6Q23KLLvaLQtaMknJI8+P3GMVXYGiTVszQK65NU0/5KCnmP8Gyx4BItvYl51ufU
+      fsFF7QuvNyQDa6bR4behYqmlhhnN/EHnSb1+/dq90W0k3dSYeTzI5TnVmWjaTqNp
+      HE/sMJMJ6PIwudxXs4w4bBzZ9IOrPMfD7viSYieeJjzbuzDYnSTcTEU9q1aJCwsN
+      AhA0CBLUnJkM9oVxEwjrpWEy9FJMW6s2sGIV7qKi/WQEolY+5YbXj2/KGQRShtIg
+      x5MLU0ac8sm6u2PS5tp/qR3Zl1E1AgMBAAGjUzBRMB0GA1UdDgQWBBQqCjWhwuEV
+      ipcKCM29qCFvA6Zi2TAfBgNVHSMEGDAWgBQqCjWhwuEVipcKCM29qCFvA6Zi2TAP
+      BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBbOO9fpzqpCLUdDXhx
+      oeugjrteLMrKycxunNe2ONWAjEQUP0/+oia1Lga5a5tc5FX3j8Em1NhnfAHRSOS7
+      qJsqR34D5Ah9N3zWnJ91xGVdu0ErLBBWf6XU0pjOzEoK4YbqBtZGdZu6NPkW1M4B
+      UtLAmAmpRMOPcV0bxBuCISmhECdAT+LQo9pJr4NyHiCzFXV8AjnGdeWvYudgiz/K
+      fYAuPZH/ctkAwZAZkg4NYLmhbau5lb/ejE3rxG0YTi9uROUL4nTAwsDAHDZzCMLb
+      wSsvvznDRaoGSXkW383QibOX1ecb5PqHCrPyraCQ5j62ijNok/uLKqPyXZxh5+qH
+      GrvA
+      -----END CERTIFICATE-----
+
+# Local preset Diffie-Hellman Params to shorten testing times
+# Set this to false for testing purposes
+guacamole_nginx_generate_dhparam: false
+
+# LDAP settings
+guacamole_auth_ldap_package: "guacamole-auth-ldap-{{ guacamole_version }}.tar.gz"
+guacamole_auth_ldap_search_bind_dn_password: "{{ guacamole_auth_ldap_ldap_password }}"
+
+# TOTP settings
+guacamole_auth_totp_package: "guacamole-auth-totp-{{ guacamole_version }}.tar.gz"
+
+guacamole_src_dir: /usr/local/src
+
+# Define version to install
+# 0.9.13-incubating | 0.9.14 | 1.0.0 | 1.1.0 | 1.3.0 | 1.4.0
+guacamole_version: 1.4.0

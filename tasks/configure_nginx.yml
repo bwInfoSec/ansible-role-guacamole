@@ -1,0 +1,84 @@
+---
+- name: Configure NGINX
+  become: true
+  tags: configure_nginx
+  block:
+    - name: Ensuring Guacamole Folders Exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - /etc/nginx/sites-available
+        - /etc/nginx/sites-enabled
+        - /etc/ssl/private
+
+    - name: NGINX set site
+      ansible.builtin.template:
+        src: "etc/nginx/sites-available/nginx-guacamole-ssl.j2"
+        dest: "/etc/nginx/sites-available/nginx-guacamole-ssl"
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0644
+
+    - name: NGINX set config
+      ansible.builtin.template:
+        src: "etc/nginx/nginx.conf.j2"
+        dest: "/etc/nginx/nginx.conf"
+        owner: "root"
+        group: "root"
+        mode: 0644
+
+    - name: NGINX enable site
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/nginx-guacamole-ssl"
+        dest: "/etc/nginx/sites-enabled/nginx-guacamole-ssl"
+        state: link
+
+    - name: NGINX set certificates
+      ansible.builtin.copy:
+        content: "{{ item.content }}"
+        dest: "/etc/ssl/private/{{ item.name }}"
+        owner: root
+        group: root
+        mode: 0600
+      when: guacamole_nginx_keys is defined
+      no_log: true
+      with_items:
+        - "{{ guacamole_nginx_keys }}"
+
+    - name: NGINX set keys
+      ansible.builtin.copy:
+        content: "{{ item.content }}"
+        dest: "/etc/ssl/certs/{{ item.name }}"
+        owner: root
+        group: ssl-cert
+        mode: 0644
+      when: guacamole_nginx_certificates is defined
+      no_log: true
+      with_items:
+        - "{{ guacamole_nginx_certificates }}"
+
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: /etc/ssl/private/{{ guacamole_nginx_key_name }}
+      when: guacamole_nginx_keys is not defined
+
+    - name: Create self-signed certificate from CSR
+      community.crypto.x509_certificate:
+        path: /etc/ssl/certs/{{ guacamole_nginx_cert_name }}
+        privatekey_path: /etc/ssl/private/{{ guacamole_nginx_key_name }}
+        provider: selfsigned
+      when: guacamole_nginx_certificates is not defined
+
+    - name: Generate Diffie-Hellman parameters with the default size (4096 bits)
+      community.crypto.openssl_dhparam:
+        path: /etc/nginx/dhparam.pem
+      when: guacamole_nginx_generate_dhparam
+
+    - name: Copy predefined Diffie-Hellman parameters for testing purposes
+      ansible.builtin.copy:
+        src: dhparam.pem
+        dest: /etc/nginx/dhparam.pem
+        mode: 0644
+      when: not guacamole_nginx_generate_dhparam

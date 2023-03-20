@@ -1,0 +1,85 @@
+---
+- name: Include OS-specific variables (Debian).
+  ansible.builtin.include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+  when: >
+    (ansible_distribution == "Debian" and
+    ansible_distribution_version is version('10', '>')) or
+    (ansible_distribution == "Ubuntu" and
+    ansible_distribution_version is version('20.04', '>='))
+
+- name: Install packages
+  ansible.builtin.include_tasks: install.yml
+  tags: install
+
+- name: Create folders
+  become: true
+  tags: create_guacamole_folder
+  block:
+    - name: Ensuring Guacamole Folders Exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0755
+      with_items:
+        - /etc/guacamole
+        - /etc/guacamole/lib
+        - /etc/guacamole/extensions
+
+    - name: Configuring guacamole.properties
+      ansible.builtin.template:
+        src: etc/guacamole/guacamole.properties.j2
+        dest: /etc/guacamole/guacamole.properties
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0644
+      notify:
+        - "Restart {{ guacamole_tomcat_service }}"
+        - Restart guacd
+        - Restart nginx
+
+    - name: Configuring user-mapping.xml
+      ansible.builtin.template:
+        src: etc/guacamole/user-mapping.xml.j2
+        dest: /etc/guacamole/user-mapping.xml
+        owner: "{{ guacamole_tomcat_user }}"
+        group: "{{ guacamole_tomcat_user }}"
+        mode: 0644
+      when: not guacamole_postgresql_auth
+
+- name: Configure database
+  ansible.builtin.include_tasks: configure_database.yml
+  when: guacamole_postgresql_auth
+  tags: configure_postgresql
+
+- name: Configure LDAP
+  ansible.builtin.include_tasks: configure_ldap.yml
+  when: guacamole_ldap_auth
+  tags: configure_ldap
+
+- name: Configure TOTP
+  ansible.builtin.include_tasks: configure_totp.yml
+  when: guacamole_totp_auth
+  tags: configure_totp
+
+- name: Configure Docker Extension
+  ansible.builtin.include_tasks: configure_docker_extension.yml
+  when: guacamole_docker_extension
+  tags: configure_docker_extension
+
+- name: Configure Tomcat
+  ansible.builtin.include_tasks: configure_tomcat.yml
+  tags: configure_tomcat
+
+- name: Configure NGINX
+  ansible.builtin.include_tasks: configure_nginx.yml
+  tags: configure_nginx
+
+- name: Set service
+  ansible.builtin.include_tasks: services.yml
+  tags: set_services
+
+- name: Configure client
+  ansible.builtin.include_tasks: configure_client.yml
+  tags: configure_client
