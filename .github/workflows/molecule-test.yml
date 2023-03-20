@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
+
 jobs:
   molecule:
     runs-on: ubuntu-latest
