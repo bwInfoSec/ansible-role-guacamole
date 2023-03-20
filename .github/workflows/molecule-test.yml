@@ -19,10 +19,7 @@ jobs:
           - ubuntu
     steps:
       - name: Disable git stricter reository ownership
-        run: git config --global safe.directory '*'
-
-      - name: Disable git stricter reository ownership (sudo)
-        run: sudo git config --global safe.directory '*'
+        run: echo "[safe]\n directory = *" | sudo tee /etc/gitconfig 
 
       - name: Checkout
         uses: actions/checkout@v2
