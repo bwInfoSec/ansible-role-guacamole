@@ -18,10 +18,14 @@ jobs:
           - debian
           - ubuntu
     steps:
+      - name: Disable git stricter reository ownership
+        run: git config --global safe.directory '*'
+
+      - name: Disable git stricter reository ownership (sudo)
+        run: sudo git config --global safe.directory '*'
+
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          set-safe-directory: '*'
 
       - name: Molecule
         uses: gofrolist/molecule-action@v2
