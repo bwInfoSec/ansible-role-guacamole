@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          set-safe-directory: '*'
 
       - name: Molecule
         uses: gofrolist/molecule-action@v2
