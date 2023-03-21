@@ -1,5 +1,4 @@
 {{ ansible_managed | comment }}
-# commit: {{ lookup('pipe', 'git rev-parse --short HEAD') }}
 
 auth-provider: {{ guacamole_auth_provider }}
 {% if guacamole_basic_user_mapping is defined and guacamole_basic_user_mapping|string %}
